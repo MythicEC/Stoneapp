@@ -101,3 +101,122 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Erstelle eine App für einen Steinmetzbetrieb, die den Nutzer ein PDF eines Auftrages hochladen lässt um diesen dann später über ein Suchfeld gefiltert nach Auftragsnummer, Namen des Kunden oder Angabe eines verwendeten Steines finden zu können."
+
+backend:
+  - task: "PDF Upload API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented PDF upload endpoint with text extraction using pdfplumber library"
+  
+  - task: "PDF Text Extraction"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added pattern matching for order number, customer name, and stone type extraction"
+  
+  - task: "Search Orders API"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented search API with support for filtering by order_number, customer_name, stone_type, or all fields"
+  
+  - task: "Order Management APIs"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added GET all orders, GET single order, and DELETE order endpoints"
+
+frontend:
+  - task: "PDF Upload Interface"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created beautiful stone-themed upload interface with file validation"
+  
+  - task: "Search Interface"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implemented search interface with dropdown for search type selection"
+  
+  - task: "Orders Display"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added order cards with professional styling and delete functionality"
+  
+  - task: "Stone Mason Themed UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.css"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created professional stone mason theme with granite/marble backgrounds"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "PDF Upload API"
+    - "PDF Text Extraction"
+    - "Search Orders API"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Implemented complete Steinmetz app with PDF upload, text extraction using pdfplumber, and search functionality. Frontend working with stone-themed design. Backend needs testing for PDF processing and search APIs."
