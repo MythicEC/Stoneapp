@@ -229,5 +229,9 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Implemented complete Steinmetz app with PDF upload, text extraction using pdfplumber, and search functionality. Frontend working with stone-themed design. Backend needs testing for PDF processing and search APIs."
+  - agent: "testing_backend"
+    message: "Backend testing completed successfully with 100% pass rate (11/11 tests). All APIs working correctly including PDF upload, text extraction, search, and order management."
+  - agent: "main"
+    message: "User requested frontend testing. Proceeding with comprehensive UI testing of all features."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE: All backend APIs tested and working perfectly! Created comprehensive backend_test.py with 11 test cases. PDF upload with German text extraction (100% success), search functionality across all fields (100% success), and order management APIs (100% success). MongoDB integration working correctly. All 11 tests passed with 100% success rate. Backend is production-ready."
