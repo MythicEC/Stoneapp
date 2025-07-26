@@ -1,0 +1,59 @@
+{
+  "name": "Steinmetz Auftragsverwaltung",
+  "short_name": "Steinmetz App",
+  "description": "Digitale Auftragsverwaltung für Steinmetzbetriebe - PDF Upload und Suchfunktionen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f4",
+  "theme_color": "#78716c",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "de",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "PDF Hochladen",
+      "short_name": "Upload",
+      "description": "Neuen PDF-Auftrag hochladen",
+      "url": "/?tab=upload",
+      "icons": [
+        {
+          "src": "icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Aufträge Suchen",
+      "short_name": "Suchen",
+      "description": "Bestehende Aufträge durchsuchen",
+      "url": "/?tab=search",
+      "icons": [
+        {
+          "src": "icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}
