@@ -16,6 +16,37 @@ function App() {
   const [searching, setSearching] = useState(false);
   const [allOrders, setAllOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+
+  // PWA Features
+  useEffect(() => {
+    // Online/Offline Status
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Service Worker Update Detection
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        setUpdateAvailable(true);
+      });
+    }
+
+    // URL Parameter für Shortcuts
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab && ['upload', 'search', 'orders'].includes(tab)) {
+      setActiveTab(tab);
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Test API connection on mount
   useEffect(() => {
@@ -44,6 +75,9 @@ function App() {
       setAllOrders(response.data.orders);
     } catch (error) {
       console.error('Error loading orders:', error);
+      if (!isOnline) {
+        alert('Keine Internetverbindung. Bitte überprüfen Sie Ihre Verbindung.');
+      }
     } finally {
       setLoading(false);
     }
@@ -61,6 +95,11 @@ function App() {
 
   const uploadPDF = async () => {
     if (!uploadedFile) return;
+
+    if (!isOnline) {
+      alert('Keine Internetverbindung. PDF-Upload ist offline nicht möglich.');
+      return;
+    }
 
     try {
       setUploading(true);
@@ -88,6 +127,11 @@ function App() {
   const searchOrders = async () => {
     if (!searchTerm.trim()) return;
 
+    if (!isOnline) {
+      alert('Keine Internetverbindung. Suche ist offline nicht möglich.');
+      return;
+    }
+
     try {
       setSearching(true);
       const response = await axios.post(`${API}/search-orders`, {
@@ -106,6 +150,11 @@ function App() {
 
   const deleteOrder = async (orderId) => {
     if (!window.confirm('Sind Sie sicher, dass Sie diesen Auftrag löschen möchten?')) {
+      return;
+    }
+
+    if (!isOnline) {
+      alert('Keine Internetverbindung. Löschen ist offline nicht möglich.');
       return;
     }
 
@@ -133,6 +182,10 @@ function App() {
     });
   };
 
+  const reloadApp = () => {
+    window.location.reload();
+  };
+
   const OrderCard = ({ order, showDelete = true }) => (
     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-stone-600">
       <div className="flex justify-between items-start mb-4">
@@ -145,7 +198,8 @@ function App() {
         {showDelete && (
           <button
             onClick={() => deleteOrder(order.id)}
-            className="text-red-600 hover:text-red-800 text-sm font-medium"
+            className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
+            disabled={!isOnline}
           >
             Löschen
           </button>
@@ -167,6 +221,25 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-100 to-stone-200">
+      {/* PWA Status Bar */}
+      {!isOnline && (
+        <div className="bg-red-600 text-white text-center py-2 text-sm">
+          ⚠️ Offline - Einige Funktionen sind nicht verfügbar
+        </div>
+      )}
+      
+      {updateAvailable && (
+        <div className="bg-blue-600 text-white text-center py-2 text-sm">
+          📱 Update verfügbar -{' '}
+          <button 
+            onClick={reloadApp}
+            className="underline font-semibold"
+          >
+            Jetzt aktualisieren
+          </button>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div 
         className="relative bg-cover bg-center h-64"
@@ -178,6 +251,9 @@ function App() {
           <div className="text-center text-white">
             <h1 className="text-4xl font-bold mb-2">Steinmetz Auftragsverwaltung</h1>
             <p className="text-xl">Verwalten Sie Ihre Aufträge digital und effizient</p>
+            {window.matchMedia('(display-mode: standalone)').matches && (
+              <p className="text-sm mt-2 opacity-75">📱 PWA-Modus aktiv</p>
+            )}
           </div>
         </div>
       </div>
@@ -235,7 +311,11 @@ function App() {
                   accept=".pdf"
                   onChange={handleFileUpload}
                   className="w-full p-3 border-2 border-stone-300 rounded-lg focus:border-stone-600 focus:outline-none"
+                  disabled={!isOnline}
                 />
+                {!isOnline && (
+                  <p className="text-red-600 text-sm mt-1">Upload offline nicht verfügbar</p>
+                )}
               </div>
 
               {uploadedFile && (
@@ -251,7 +331,7 @@ function App() {
 
               <button
                 onClick={uploadPDF}
-                disabled={!uploadedFile || uploading}
+                disabled={!uploadedFile || uploading || !isOnline}
                 className="w-full bg-stone-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-stone-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors"
               >
                 {uploading ? 'Hochladen...' : 'PDF Hochladen'}
@@ -287,12 +367,14 @@ function App() {
                   placeholder="Suchbegriff eingeben..."
                   className="flex-1 p-3 border-2 border-stone-300 rounded-lg focus:border-stone-600 focus:outline-none"
                   onKeyPress={(e) => e.key === 'Enter' && searchOrders()}
+                  disabled={!isOnline}
                 />
                 
                 <select
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
                   className="p-3 border-2 border-stone-300 rounded-lg focus:border-stone-600 focus:outline-none bg-white"
+                  disabled={!isOnline}
                 >
                   <option value="all">Alle Felder</option>
                   <option value="order_number">Auftragsnummer</option>
@@ -302,12 +384,16 @@ function App() {
                 
                 <button
                   onClick={searchOrders}
-                  disabled={searching || !searchTerm.trim()}
+                  disabled={searching || !searchTerm.trim() || !isOnline}
                   className="px-6 py-3 bg-stone-600 text-white rounded-lg font-medium hover:bg-stone-700 disabled:bg-stone-300 disabled:cursor-not-allowed transition-colors"
                 >
                   {searching ? 'Suchen...' : 'Suchen'}
                 </button>
               </div>
+              
+              {!isOnline && (
+                <p className="text-red-600 text-sm text-center">Suche offline nicht verfügbar</p>
+              )}
             </div>
 
             {/* Search Results */}
@@ -341,12 +427,18 @@ function App() {
               </h2>
               <button
                 onClick={loadAllOrders}
-                disabled={loading}
+                disabled={loading || !isOnline}
                 className="px-4 py-2 bg-stone-600 text-white rounded-lg font-medium hover:bg-stone-700 disabled:bg-stone-300 transition-colors"
               >
                 {loading ? 'Laden...' : 'Aktualisieren'}
               </button>
             </div>
+
+            {!isOnline && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p className="text-yellow-800">⚠️ Offline - Zeige zwischengespeicherte Aufträge</p>
+              </div>
+            )}
 
             {loading ? (
               <div className="text-center text-stone-600 py-8">
